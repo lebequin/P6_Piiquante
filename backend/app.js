@@ -1,13 +1,22 @@
 const express = require('express');
+const app = express();
+const bodyParser = require('body-parser')
 const mongoose = require('mongoose');
+const path = require('path');
+const dotenv = require('dotenv');
+dotenv.config();
 
 const sauceRoutes = require('./routes/sauce');
 const userRoutes = require('./routes/user');
 
-const app = express();
+const ID = process.env.ID;
+const PASSWORD = process.env.PASSWORD;
+const BDD_NAME = process.env.BDD_NAME;
+const CLUSTER = process.env.CLUSTER;
 
-const uri = 'mongodb+srv://leobequin:Doic3NzSWfoLPQs0@cluster0.bsp0y.mongodb.net/myFirstDatabase?retryWrites=true&w=majority'
-mongoose.connect(uri, { useNewUrlParser: true, useUnifiedTopology: true })
+mongoose.connect(`mongodb+srv://${ID}:${PASSWORD}${CLUSTER}.mongodb.net/${BDD_NAME}?retryWrites=true&w=majority`,
+    { useNewUrlParser: true,
+        useUnifiedTopology: true })
     .then(() => console.log('Connexion à MongoDB réussie !'))
     .catch(() => console.log('Connexion à MongoDB échouée !'));
 
@@ -18,8 +27,11 @@ app.use((req, res, next) => {
     next();
 });
 
+app.use(bodyParser.json());
+
+app.use('/images', express.static(path.join(__dirname, 'images')));
+
 app.use('/api/sauces', sauceRoutes);
 app.use('/api/auth', userRoutes);
-
 
 module.exports = app;
