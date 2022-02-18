@@ -9,10 +9,10 @@ dotenv.config();
 const sauceRoutes = require('./routes/sauce');
 const userRoutes = require('./routes/user');
 
-const ID = process.env.ID;
-const PASSWORD = process.env.PASSWORD;
-const BDD_NAME = process.env.BDD_NAME;
-const CLUSTER = process.env.CLUSTER;
+const ID = process.env.DB_USER;
+const PASSWORD = process.env.DB_PASSWORD;
+const BDD_NAME = process.env.DB_NAME;
+const CLUSTER = process.env.DB_CLUSTER;
 
 mongoose.connect(`mongodb+srv://${ID}:${PASSWORD}${CLUSTER}.mongodb.net/${BDD_NAME}?retryWrites=true&w=majority`,
     { useNewUrlParser: true,

@@ -18,7 +18,7 @@ exports.getOneSauce = (req, res, next) => {
     Sauce.findOne({
         _id: req.params.id
     }).then(
-        (thing) => {
+        (sauce) => {
             res.status(200).json(sauce);
         }
     ).catch(
