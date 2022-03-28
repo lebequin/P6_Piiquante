@@ -1,4 +1,5 @@
 const Sauce = require('../models/sauce');
+const utils = require('../utils');
 const fs = require('fs');
 
 exports.createSauce = (req, res, next) => {
@@ -35,39 +36,55 @@ exports.getOneSauce = (req, res, next) => {
 };
 
 exports.modifySauce = (req, res, next) => {
-    if(req.file){
-        Sauce.findOne({ _id: req.params.id }).then(sauce => {
-            const filename = sauce.imageUrl.split('/images/')[1];
-            fs.unlink(`images/${filename}`, () => {
-                const sauceObject = {
-                    ...JSON.parse(req.body.sauce),
-                    imageUrl: `${req.protocol}://${req.get('host')}/images/${req.file.filename}`
-                }
-                Sauce.updateOne({_id: req.params.id}, {...sauceObject, _id: req.params.id})
-                    .then(() => res.status(200).json({message: 'Objet modifié !'}))
-                    .catch(error => res.status(400).json({error}));
-            });
-        })
-            .catch(error => res.status(500).json({ error }));
+    const headerAuth = req.headers["authorization"];
+    const userId = utils.getUserId(headerAuth);
+
+    if( userId == req.params.id ) {
+        if(req.file){
+            Sauce.findOne({ _id: req.params.id }).then(sauce => {
+                const filename = sauce.imageUrl.split('/images/')[1];
+                fs.unlink(`images/${filename}`, () => {
+                    const sauceObject = {
+                        ...JSON.parse(req.body.sauce),
+                        imageUrl: `${req.protocol}://${req.get('host')}/images/${req.file.filename}`
+                    }
+                    Sauce.updateOne({_id: req.params.id}, {...sauceObject, _id: req.params.id})
+                        .then(() => res.status(200).json({message: 'Objet modifié !'}))
+                        .catch(error => res.status(400).json({error}));
+                });
+            })
+                .catch(error => res.status(500).json({ error }));
+        }
+        else {
+            Sauce.updateOne({ _id: req.params.id }, { ...req.body, _id: req.params.id })
+                .then(() => res.status(200).json({ message: 'Objet modifié !'}))
+                .catch(error => res.status(400).json({ error }));
+        }
     }
-    else {
-        Sauce.updateOne({ _id: req.params.id }, { ...req.body, _id: req.params.id })
-            .then(() => res.status(200).json({ message: 'Objet modifié !'}))
-            .catch(error => res.status(400).json({ error }));
+    else{
+        res.status(401).send('You are not authenticated to modify this sauce')
     }
 };
 
 exports.deleteSauce = (req, res, next) => {
-    Sauce.findOne({ _id: req.params.id })
-        .then(sauce => {
-            const filename = sauce.imageUrl.split('/images/')[1];
-            fs.unlink(`images/${filename}`, () => {
-                Sauce.deleteOne({ _id: req.params.id })
-                    .then(() => res.status(200).json({ message: 'Objet supprimé !'}))
-                    .catch(error => res.status(400).json({ error }));
-            });
-        })
-        .catch(error => res.status(500).json({ error }));
+    const headerAuth = req.headers["authorization"];
+    const userId = utils.getUserId(headerAuth);
+
+    if( userId == req.params.id ) {
+        Sauce.findOne({_id: req.params.id})
+            .then(sauce => {
+                const filename = sauce.imageUrl.split('/images/')[1];
+                fs.unlink(`images/${filename}`, () => {
+                    Sauce.deleteOne({_id: req.params.id})
+                        .then(() => res.status(200).json({message: 'Objet supprimé !'}))
+                        .catch(error => res.status(400).json({error}));
+                });
+            })
+            .catch(error => res.status(500).json({error}));
+    }
+    else{
+        res.status(401).send('You are not authenticated to delete this sauce')
+    }
 };
 
 exports.getAllSauce = (req, res, next) => {
