@@ -42,6 +42,7 @@ Le site hébergé sur GitHub : [PIIQUANTE](https://github.com/lebequin/P6_Piiqua
 1. Cloner le <a href='https://github.com/lebequin/P6_Piiquante.git'>projet</a> de l'application.
 2. Pour le projet, le fichier .env est ignoré dans gitignore
 3. Installer les dépendances : `npm install`
-4. Allez dans le fichier backend et lancer la commande `nodemon server`
-5. Ensuite allez dans le fichier frontend et lancer `npm start`
+4. créer un fichier /images dans le fichier backend
+5. Allez dans le fichier backend et lancer la commande `nodemon server`
+6. Ensuite allez dans le fichier frontend et lancer `npm start`
 
